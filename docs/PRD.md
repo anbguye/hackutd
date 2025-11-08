@@ -1,4 +1,4 @@
-# hackutd - Product Requirements Document
+# Toyota Autoguide - Product Requirements Document
 
 **Authors:** Anthony Nguyen, Brice Duke, David Santos, Tuan Dihn
 **Date:** 2025-11-08
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-HackUTD Toyota Agent is an intelligent car shopping companion that guides users through Toyota discovery with agent-led conversation. Users enter with preferences, the agent narrows options efficiently, and they find their perfect Toyota quickly while understanding total cost of ownership.
+Toyota Autoguide is an intelligent car shopping companion that guides users through Toyota discovery with agent-led conversation. Users enter with preferences, the agent narrows options efficiently, and they find their perfect Toyota quickly while understanding total cost of ownership.
 
 ### What Makes This Special
 
@@ -335,6 +335,6 @@ No prior documents (Product Brief, research, etc.)
 
 ---
 
-_This PRD captures the essence of hackutd - Guided Discovery through an intelligent Toyota shopping companion that helps users find their perfect car quickly and understand total cost of ownership._
+_This PRD captures the essence of Toyota Autoguide - Guided Discovery through an intelligent Toyota shopping companion that helps users find their perfect car quickly and understand total cost of ownership._
 
 _Created through collaborative discovery between BMad and AI facilitator._
