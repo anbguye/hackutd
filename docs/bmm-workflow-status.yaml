@@ -40,7 +40,7 @@ workflow_status:
   # Phase 2: Solutioning
   create-architecture: "docs/architecture.md"
   validate-architecture: "optional"
-  solutioning-gate-check: "required"
+  solutioning-gate-check: "docs/implementation-readiness-report.md"
 
   # Phase 3: Implementation
   sprint-planning: "required"
