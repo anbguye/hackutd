@@ -3,7 +3,7 @@
 # Phase 3/4 (Implementation) is tracked separately in sprint-status.yaml
 
 # generated: 2025-11-08
-# project: hackutd
+# project: Toyota Autoguide
 # project_type: software
 # selected_track: method
 # field_type: greenfield
@@ -22,7 +22,7 @@
 #   - skipped: Optional/conditional workflow that was skipped
 
 generated: "2025-11-08"
-project: "hackutd"
+project: "Toyota Autoguide"
 project_type: "software"
 selected_track: "method"
 field_type: "greenfield"
