@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Car, ChevronLeft, ChevronRight } from "lucide-react"
+import { RequireAuth } from "@/components/auth/RequireAuth"
+import { LogoutButton } from "@/components/auth/LogoutButton"
 
 export default function QuizPage() {
   const router = useRouter()
@@ -29,7 +31,8 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <RequireAuth>
+      <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="border-b border-border/40">
         <div className="container mx-auto px-6 lg:px-8">
@@ -40,6 +43,9 @@ export default function QuizPage() {
               </div>
               <span className="text-xl font-bold">Toyota Agent</span>
             </Link>
+            <div className="ml-auto">
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </header>
@@ -216,6 +222,7 @@ export default function QuizPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </RequireAuth>
   )
 }

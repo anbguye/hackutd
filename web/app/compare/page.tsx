@@ -5,6 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Car, Check } from "lucide-react"
+import { RequireAuth } from "@/components/auth/RequireAuth"
+import { LogoutButton } from "@/components/auth/LogoutButton"
 
 const availableCars = [
   {
@@ -46,7 +48,8 @@ export default function ComparePage() {
   const [selectedCars, setSelectedCars] = useState([availableCars[0], availableCars[1], availableCars[2]])
 
   return (
-    <div className="min-h-screen bg-background">
+    <RequireAuth>
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-6 lg:px-8">
@@ -68,6 +71,7 @@ export default function ComparePage() {
                   Browse All
                 </Button>
               </Link>
+              <LogoutButton />
             </div>
           </div>
         </div>
@@ -222,6 +226,7 @@ export default function ComparePage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </RequireAuth>
   )
 }

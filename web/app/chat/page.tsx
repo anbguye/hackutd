@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Car, Send, User, Bot } from "lucide-react"
+import { RequireAuth } from "@/components/auth/RequireAuth"
+import { LogoutButton } from "@/components/auth/LogoutButton"
 
 type Message = {
   role: "user" | "agent"
@@ -42,7 +44,8 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col">
+    <RequireAuth>
+      <div className="h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-6 lg:px-8">
@@ -64,6 +67,7 @@ export default function ChatPage() {
                   Compare
                 </Button>
               </Link>
+              <LogoutButton />
             </div>
           </div>
         </div>
@@ -143,6 +147,7 @@ export default function ChatPage() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </RequireAuth>
   )
 }

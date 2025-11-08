@@ -1,10 +1,48 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Car } from "lucide-react"
+import { supabase } from "@/lib/supabase/client"
 
 export default function LoginPage() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    try {
+      setLoading(true)
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (signInError) throw signInError
+      router.replace("/chat")
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to sign in")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : ""
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}/auth/callback?next=/chat`,
+      },
+    })
+  }
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -30,10 +68,18 @@ export default function LoginPage() {
           </div>
 
           <div className="rounded-xl border border-border bg-card p-8 shadow-lg">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleLogin}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com" className="h-11" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  className="h-11"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
 
               <div className="space-y-2">
@@ -43,10 +89,22 @@ export default function LoginPage() {
                     Forgot password?
                   </Link>
                 </div>
-                <Input id="password" type="password" placeholder="••••••••" className="h-11" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  className="h-11"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
 
-              <Button className="w-full h-11 bg-primary hover:bg-primary/90">Sign In</Button>
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
+              <Button type="submit" className="w-full h-11 bg-primary hover:bg-primary/90" disabled={loading}>
+                {loading ? "Signing in..." : "Sign In"}
+              </Button>
             </form>
 
             <div className="mt-6">
@@ -59,7 +117,12 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full mt-4 h-11 bg-transparent">
+              <Button
+                type="button"
+                onClick={handleGoogleLogin}
+                variant="outline"
+                className="w-full mt-4 h-11 bg-transparent"
+              >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"

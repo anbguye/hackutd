@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import { Car, MapPin, Clock, Check } from "lucide-react"
+import { RequireAuth } from "@/components/auth/RequireAuth"
+import { LogoutButton } from "@/components/auth/LogoutButton"
 
 export default function TestDrivePage() {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -22,7 +24,8 @@ export default function TestDrivePage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <RequireAuth>
+        <div className="min-h-screen bg-background flex flex-col">
         <header className="border-b border-border/40">
           <div className="container mx-auto px-6 lg:px-8">
             <div className="flex h-16 items-center">
@@ -32,6 +35,9 @@ export default function TestDrivePage() {
                 </div>
                 <span className="text-xl font-bold">Toyota Agent</span>
               </Link>
+              <div className="ml-auto">
+                <LogoutButton />
+              </div>
             </div>
           </div>
         </header>
@@ -75,12 +81,14 @@ export default function TestDrivePage() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </RequireAuth>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <RequireAuth>
+      <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="border-b border-border/40">
         <div className="container mx-auto px-6 lg:px-8">
@@ -91,6 +99,9 @@ export default function TestDrivePage() {
               </div>
               <span className="text-xl font-bold">Toyota Agent</span>
             </Link>
+            <div className="ml-auto">
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </header>
@@ -190,6 +201,7 @@ export default function TestDrivePage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </RequireAuth>
   )
 }
