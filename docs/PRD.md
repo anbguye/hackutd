@@ -143,6 +143,7 @@ Users find their perfect Toyota quickly through guided agent discovery. The agen
 
 #### Users Table
 - user_id (UUID)
+- user_role (user, admin)
 - email
 - password_hash
 - google_oauth_id
