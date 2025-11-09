@@ -2,15 +2,19 @@
 
 ## Test Drive Scheduling Authentication Bug
 
-**Status:** Open  
+**Status:** Fixed  
 **Severity:** Medium  
-**Reported:** During hackathon development
+**Reported:** During hackathon development  
+**Fixed:** Commit d8614fd
 
 ### Description
-Users are unable to schedule test drives even when signed in. The `scheduleTestDrive` tool returns an authentication error: "Unable to verify your session. Please refresh the page and try again."
+Users were unable to schedule test drives even when signed in. The `scheduleTestDrive` tool returned an authentication error: "Unable to verify your session. Please refresh the page and try again."
 
 ### Root Cause
-The `scheduleTestDrive` tool executes in a server-side context but may not have access to request cookies/headers. The tool uses `createSsrClient()` which relies on Next.js `cookies()` API, but tools execute in a different context than API route handlers and may not have access to the original request's cookies.
+The `scheduleTestDrive` tool executed in a server-side context but did not have access to request cookies/headers. The tool used `createSsrClient()` which relies on Next.js `cookies()` API, but tools execute in a different context than API route handlers and did not have access to the original request's cookies.
+
+### Solution
+Created `createToolsWithUserContext()` function that creates tools dynamically with user context closure. The route handler now passes the authenticated user and session (which have proper cookie access) to the tool creation function, allowing the `scheduleTestDrive` tool to access user information without needing to read cookies directly.
 
 ### Error Message
 ```

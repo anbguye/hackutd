@@ -1,7 +1,7 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { convertToModelMessages, stepCountIs, streamText, type UIDataTypes, type UIMessage } from "ai";
 import { createSsrClient } from "@/lib/supabase/server";
-import { tools, type ChatTools } from "./tools";
+import { tools, createToolsWithUserContext, type ChatTools } from "./tools";
 import { intentAgent, vehicleAgent, financeAgent, reportAgent } from "./agents";
 import { orchestrateQuery } from "./orchestrator";
 import { use } from "react";
@@ -327,6 +327,9 @@ export async function POST(req: Request) {
     },
   });
 
+  // Create tools with user context (for scheduleTestDrive authentication)
+  const toolsWithContext = createToolsWithUserContext(currentUser, userSession);
+
   try {
     // Use orchestrator to decide when to retrieve vs use static knowledge
     const lastMessage = body.messages[body.messages.length - 1];
@@ -358,7 +361,7 @@ export async function POST(req: Request) {
             },
           ],
           stopWhen: stepCountIs(1),
-          tools,
+          tools: toolsWithContext,
         });
 
         return result.toUIMessageStreamResponse();
@@ -371,7 +374,7 @@ export async function POST(req: Request) {
           system: buildSystemPrompt(preferences) + `\n\nThe user is asking about financing for a vehicle priced at $${decision.vehiclePrice.toLocaleString()}. You MUST call the estimateFinance tool with vehiclePrice: ${decision.vehiclePrice}.`,
           messages: convertToModelMessages(body.messages),
           stopWhen: stepCountIs(3),
-          tools,
+          tools: toolsWithContext,
         });
 
         return result.toUIMessageStreamResponse();
@@ -410,7 +413,7 @@ export async function POST(req: Request) {
             system: enhancedSystemPrompt,
             messages: convertToModelMessages(body.messages),
             stopWhen: stepCountIs(5),
-            tools,
+            tools: toolsWithContext,
           });
 
           return result.toUIMessageStreamResponse();
@@ -427,7 +430,7 @@ export async function POST(req: Request) {
       system: buildSystemPrompt(preferences),
       messages: convertToModelMessages(body.messages),
       stopWhen: stepCountIs(10),
-      tools,
+      tools: toolsWithContext,
     });
 
     return result.toUIMessageStreamResponse();
