@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { CarRecommendations } from "@/components/chat/CarRecommendations";
+import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { MemoizedMarkdown } from "@/components/memoized-markdown";
 import { supabase } from "@/lib/supabase/client";
 
@@ -31,6 +32,7 @@ const initialAgentMessage: DisplayMessage = {
 export default function ChatPage() {
   const [input, setInput] = useState("");
   const authTokenRef = useRef<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get auth token from Supabase session
   useEffect(() => {
@@ -127,6 +129,24 @@ export default function ChatPage() {
   });
 
   const displayMessages = [initialAgentMessage, ...deduplicatedMessages];
+
+  // Check if we should show typing indicator
+  // Show when: streaming, no active tool calls, and either:
+  // - last message is from user (waiting for bot to start), OR
+  // - last assistant message has no content yet (bot is still processing)
+  const lastDisplayMessage = displayMessages[displayMessages.length - 1];
+  const lastDisplayAssistantMessage = displayMessages.filter((m) => m.role === "agent").at(-1);
+  const isWaitingForBotResponse =
+    isStreaming &&
+    !hasActiveToolCalls &&
+    (lastDisplayMessage?.role === "user" || (lastDisplayAssistantMessage && !lastDisplayAssistantMessage.content.trim()));
+
+  // Auto-scroll to bottom when messages change or typing indicator appears
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [displayMessages, isWaitingForBotResponse]);
 
   const handleSend = async () => {
     const messageToSend = input.trim();
@@ -298,6 +318,12 @@ export default function ChatPage() {
                       </div>
                     );
                   })}
+                  {/* Show typing indicator when bot is processing and waiting for response */}
+                  {isWaitingForBotResponse && (
+                    <TypingIndicator />
+                  )}
+                  {/* Scroll anchor */}
+                  <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
 
