@@ -2,17 +2,12 @@ import { Suspense } from "react"
 
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
 import { RequireAuth } from "@/components/auth/RequireAuth"
-import { LogoutButton } from "@/components/auth/LogoutButton"
 import { CompareClient } from "./CompareClient"
 
 export default function ComparePage() {
   return (
     <RequireAuth>
       <div className="flex min-h-full flex-col bg-background text-foreground">
-        <div className="toyota-container flex justify-end pt-6">
-          <LogoutButton />
-        </div>
-
         <div className="flex-1 space-y-16 pb-24">
           <section className="toyota-container space-y-6 pt-4">
             <div className="space-y-4">
