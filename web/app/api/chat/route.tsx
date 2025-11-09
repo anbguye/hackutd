@@ -128,33 +128,6 @@ function buildSystemPrompt(preferences: Awaited<ReturnType<typeof getUserPrefere
       "- Example good response: 'Here's what I found, and here's why they might be a good fit for you: These options match your budget range and offer the features you're looking for. The visual cards below show the specific models and details.'";
   }
 
-  systemPrompt += "\n\n";
-  systemPrompt += "BOOKING TEST DRIVES:\n";
-  systemPrompt +=
-    "When a user wants to schedule a test drive, you need to collect the following information before calling the bookTestDrive tool:\n";
-  systemPrompt +=
-    "1. Contact name (full name of the person booking the test drive)\n";
-  systemPrompt +=
-    "2. Contact email (email address for the booking)\n";
-  systemPrompt +=
-    "3. Contact phone (phone number for the booking)\n";
-  systemPrompt +=
-    "4. Preferred location (dealership location where they want the test drive)\n";
-  systemPrompt +=
-    "5. Booking date and time (in ISO 8601 format, e.g., 2025-01-15T14:00:00-06:00)\n";
-  systemPrompt +=
-    "6. Vehicle details - you MUST have the trimId (from searchToyotaTrims results). Other fields (make, model, year, trim) are optional but helpful.\n";
-  systemPrompt +=
-    "\nIMPORTANT: The user MUST be signed in to book a test drive. If they are not signed in, tell them they need to sign in first.\n";
-  systemPrompt +=
-    "\nAfter successfully booking:\n";
-  systemPrompt +=
-    "- Confirm the booking details (date, time, location)\n";
-  systemPrompt +=
-    "- If a calendar event link is provided, mention it: 'I've added this to your calendar. You can view it here: [link]'\n";
-  systemPrompt +=
-    "- Be friendly and helpful, confirming they'll receive a confirmation email\n";
-
   return systemPrompt;
 }
 
