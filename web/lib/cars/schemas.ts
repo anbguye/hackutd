@@ -161,7 +161,7 @@ export const scheduleTestDriveInputSchema = z.object({
     .describe("Contact email (will use user's profile if not provided)"),
   contactPhone: z
     .string()
-    .optional()
-    .describe("Contact phone number (will use user's profile if not provided)"),
+    .min(1)
+    .describe("Contact phone number (required - ask the user for their phone number)"),
 });
 

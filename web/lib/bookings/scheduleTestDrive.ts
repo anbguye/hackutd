@@ -246,7 +246,7 @@ export async function scheduleTestDrive(
         await sendBookingConfirmationEmail({
           contactName,
           contactEmail,
-          contactPhone: contactPhone || "000-000-0000",
+          contactPhone,
           preferredLocation: input.location || "downtown",
           bookingDateTime: bookingDateTime.toISOString(),
           vehicleMake: vehicleData.make || "Vehicle",
@@ -277,7 +277,7 @@ export async function scheduleTestDrive(
       await sendBookingConfirmationEmail({
         contactName,
         contactEmail,
-        contactPhone: contactPhone || "000-000-0000",
+        contactPhone,
         preferredLocation: input.location || "downtown",
         bookingDateTime: bookingDateTime.toISOString(),
         vehicleMake: vehicleData.make || "Vehicle",

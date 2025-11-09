@@ -9,6 +9,7 @@ import {
 import type { CarCard } from "@/lib/cars/types";
 import { sendEmailHtmlInputSchema } from "@/lib/email/schemas";
 import { sendEmailHtml } from "@/lib/email/resend";
+import { sendBookingConfirmationEmail } from "@/lib/email/booking-confirmation";
 import { createSsrClient, createSupabaseServerClient } from "@/lib/supabase/server";
 import { scheduleTestDrive } from "@/lib/bookings/scheduleTestDrive";
 
@@ -268,7 +269,7 @@ const estimateFinanceTool = tool({
 
 const scheduleTestDriveTool = tool({
   description:
-    "Schedule a test drive for a vehicle. Use this when the user wants to schedule a test drive or shows interest in test driving a specific vehicle. You should proactively suggest scheduling test drives after showing vehicle recommendations. Requires trim_id, preferred date/time, and optionally location and contact info.",
+    "Schedule a test drive for a vehicle. Use this when the user wants to schedule a test drive or shows interest in test driving a specific vehicle. You should proactively suggest scheduling test drives after showing vehicle recommendations. IMPORTANT: Before calling this tool, you MUST ask the user for their phone number and preferred date/time if not already provided. Collect contact name, email (if different from profile), phone number, and preferred location before scheduling. Requires trim_id, preferred date/time, and contact information.",
   inputSchema: scheduleTestDriveInputSchema,
   execute: async (input) => {
     return await scheduleTestDrive(input);
@@ -279,7 +280,7 @@ const scheduleTestDriveTool = tool({
 function createScheduleTestDriveTool(user: { id: string; email?: string | null } | null, session: { access_token: string } | null) {
   return tool({
     description:
-      "Schedule a test drive for a vehicle. Use this when the user wants to schedule a test drive or shows interest in test driving a specific vehicle. You should proactively suggest scheduling test drives after showing vehicle recommendations. Requires trim_id, preferred date/time, and optionally location and contact info.",
+      "Schedule a test drive for a vehicle. Use this when the user wants to schedule a test drive or shows interest in test driving a specific vehicle. You should proactively suggest scheduling test drives after showing vehicle recommendations. IMPORTANT: Before calling this tool, you MUST ask the user for their phone number and preferred date/time if not already provided. Collect contact name, email (if different from profile), phone number, and preferred location before scheduling. Requires trim_id, preferred date/time, and contact information.",
     inputSchema: scheduleTestDriveInputSchema,
     execute: async (input) => {
       try {
@@ -450,7 +451,7 @@ function createScheduleTestDriveTool(user: { id: string; email?: string | null }
             await sendBookingConfirmationEmail({
               contactName,
               contactEmail,
-              contactPhone: contactPhone || "000-000-0000",
+              contactPhone,
               preferredLocation: input.location || "downtown",
               bookingDateTime: bookingDateTime.toISOString(),
               vehicleMake: vehicleData.make || "Vehicle",
@@ -481,7 +482,7 @@ function createScheduleTestDriveTool(user: { id: string; email?: string | null }
           await sendBookingConfirmationEmail({
             contactName,
             contactEmail,
-            contactPhone: contactPhone || "000-000-0000",
+            contactPhone,
             preferredLocation: input.location || "downtown",
             bookingDateTime: bookingDateTime.toISOString(),
             vehicleMake: vehicleData.make || "Vehicle",
