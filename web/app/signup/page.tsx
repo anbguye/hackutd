@@ -3,9 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, UserPlus } from "lucide-react"
+import { ArrowLeft, UserPlus } from "lucide-react"
 
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
 import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -56,20 +55,8 @@ export default function SignupPage() {
     })
   }
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <ToyotaHeader
-        navItems={[
-          { label: "Home", href: "/" },
-          { label: "Browse", href: "/browse" },
-          { label: "Compare", href: "/compare" },
-        ]}
-        actions={[
-          { label: "Sign in", href: "/login", variant: "ghost" },
-        ]}
-        translucent={false}
-      />
-
-      <main className="flex flex-1 items-center justify-center px-4 py-16">
+    <div className="flex min-h-full flex-col bg-background text-foreground">
+      <div className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="grid w-full max-w-5xl gap-10 rounded-[2.5rem] border border-border/70 bg-card/70 p-10 shadow-[0_32px_80px_-70px_rgba(15,20,26,0.85)] backdrop-blur lg:grid-cols-[0.95fr_1.05fr] lg:p-16">
           <div className="flex flex-col justify-between gap-10">
             <div className="space-y-6">
@@ -220,7 +207,7 @@ export default function SignupPage() {
             </p>
           </div>
         </div>
-      </main>
+      </div>
 
       <ToyotaFooter />
     </div>

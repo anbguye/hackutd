@@ -1,17 +1,12 @@
+'use client'
+
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, CalendarCheck, Gauge, MessageSquare, ShieldCheck, Sparkles } from "lucide-react"
 
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { Button } from "@/components/ui/button"
-
-const navItems = [
-  { label: "Features", href: "#features" },
-  { label: "Experience", href: "#experience" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Models", href: "/browse" },
-]
+import { cn } from "@/lib/utils"
 
 const heroStats = [
   { label: "Toyota Models", value: "36+", detail: "2025 lineup curated" },
@@ -66,29 +61,18 @@ const experienceSteps = [
   },
 ]
 
+const heroOverlap = false
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="relative overflow-hidden">
+    <div className="flex min-h-full flex-col bg-background text-foreground">
+      <div className="relative flex-1 overflow-hidden">
         <div className="pointer-events-none absolute -top-[240px] right-[-240px] h-[520px] w-[520px] rounded-full bg-primary/15 blur-[140px]" />
         <div className="pointer-events-none absolute bottom-[-360px] left-[-200px] h-[620px] w-[620px] rounded-full bg-secondary/10 blur-[160px]" />
 
-        <ToyotaHeader
-          navItems={navItems}
-          actions={[
-            { label: "Sign In", href: "/login", variant: "ghost" },
-            {
-              label: "Launch Agent",
-              href: "/signup",
-              variant: "primary",
-              icon: <ArrowRight className="h-4 w-4" />,
-            },
-          ]}
-        />
-
-        <main className="space-y-32 pb-24 pt-14 sm:pt-20">
-          <section className="toyota-container grid gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="relative space-y-10">
+        <div className="space-y-32 pb-24 pt-8 sm:pt-12">
+          <section className="toyota-container grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            <div className="space-y-10">
               <span className="toyota-chip">Toyota Agent</span>
               <div className="space-y-6">
                 <h1 className="text-balance text-4xl font-black tracking-tight text-secondary sm:text-5xl lg:text-6xl">
@@ -114,11 +98,16 @@ export default function LandingPage() {
                   </Button>
                 </Link>
               </div>
-              <div className="grid gap-6 rounded-2xl border border-border/70 bg-card/80 p-6 backdrop-blur lg:max-w-xl">
+              <div
+                className={cn(
+                  "mt-6 rounded-2xl border border-border/70 bg-white/90 p-6 shadow backdrop-blur",
+                  heroOverlap && "xl:-mt-16 xl:ml-8 xl:max-w-[520px]",
+                )}
+              >
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground/80">
                   Trusted Toyota experience
                 </p>
-                <div className="grid gap-6 sm:grid-cols-3">
+                <div className="mt-4 grid gap-6 sm:grid-cols-3">
                   {heroStats.map((stat) => (
                     <div key={stat.label} className="space-y-1">
                       <span className="text-2xl font-bold text-secondary sm:text-3xl">{stat.value}</span>
@@ -132,44 +121,21 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="relative">
-              <div className="toyota-surface relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/30" />
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem]">
-                  <Image
-                    src="/toyota-rav4-hybrid.jpg"
-                    alt="Toyota RAV4 Hybrid"
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1280px) 45vw, (min-width: 768px) 55vw, 100vw"
-                    priority
-                  />
-                </div>
-                <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-3 rounded-2xl bg-background/80 p-4 backdrop-blur">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground/90">
-                    <span className="font-semibold uppercase tracking-[0.28em] text-secondary">Showcase</span>
-                    <span>RAV4 Hybrid XSE</span>
-                  </div>
-                  <div className="grid gap-4 rounded-xl border border-border/70 bg-card/90 p-4 sm:grid-cols-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground/80">MPG</p>
-                      <p className="text-lg font-semibold text-secondary">41 / 38</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground/80">MSRP</p>
-                      <p className="text-lg font-semibold text-secondary">$36,000</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground/80">Drive</p>
-                      <p className="text-lg font-semibold text-secondary">AWD</p>
-                    </div>
-                  </div>
-                </div>
+            <div className="relative w-full rounded-3xl shadow-lg">
+              <div className="relative w-full overflow-hidden rounded-3xl">
+                <Image
+                  src="/toyota-rav4-hybrid.jpg"
+                  alt="Toyota RAV4 Hybrid"
+                  className="block h-[360px] w-full object-cover md:h-[420px] lg:h-[520px]"
+                  width={1040}
+                  height={780}
+                  priority
+                />
               </div>
             </div>
           </section>
 
-          <section id="features" className="toyota-container space-y-14">
+          <section id="features" className="toyota-container space-y-14 scroll-mt-24 md:scroll-mt-28 lg:scroll-mt-32">
             <div className="max-w-3xl space-y-4">
               <span className="toyota-chip">Why Toyota Agent</span>
               <h2 className="text-pretty text-3xl font-black tracking-tight text-secondary sm:text-4xl">
@@ -203,7 +169,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="toyota-container" id="experience">
+          <section className="toyota-container scroll-mt-24 md:scroll-mt-28 lg:scroll-mt-32" id="experience">
             <div className="rounded-[2.5rem] border border-border/70 bg-card/80 p-10 shadow-[0_32px_75px_-50px_rgba(15,20,26,0.7)] backdrop-blur">
               <div className="flex flex-col gap-12 lg:flex-row">
                 <div className="max-w-sm space-y-6">
@@ -243,7 +209,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section id="pricing" className="toyota-container grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <section id="pricing" className="toyota-container grid gap-8 scroll-mt-24 md:scroll-mt-28 lg:scroll-mt-32 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="space-y-6">
               <span className="toyota-chip">Total ownership clarity</span>
               <h2 className="text-pretty text-3xl font-black tracking-tight text-secondary sm:text-4xl">
@@ -340,7 +306,7 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-        </main>
+        </div>
       </div>
       <ToyotaFooter />
     </div>

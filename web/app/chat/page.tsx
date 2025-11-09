@@ -5,7 +5,6 @@ import { Send, User, Bot, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { RequireAuth } from "@/components/auth/RequireAuth"
 import { LogoutButton } from "@/components/auth/LogoutButton"
 
@@ -45,22 +44,13 @@ export default function ChatPage() {
 
   return (
     <RequireAuth>
-      <div className="flex h-screen flex-col bg-background text-foreground">
-        <ToyotaHeader
-          navItems={[
-            { label: "Browse", href: "/browse" },
-            { label: "Compare", href: "/compare" },
-            { label: "Test Drive", href: "/test-drive" },
-          ]}
-          actions={[
-            { label: "Browse models", href: "/browse", variant: "secondary" },
-          ]}
-          rightSlot={<LogoutButton />}
-          translucent={false}
-        />
+      <div className="flex min-h-full flex-col bg-background text-foreground">
+        <div className="toyota-container flex justify-end pt-6">
+          <LogoutButton />
+        </div>
 
-        <main className="flex-1">
-          <div className="toyota-container flex h-full max-w-4xl flex-col py-8">
+        <div className="flex-1">
+          <div className="toyota-container flex h-full max-w-4xl flex-col py-6">
             <div className="mb-8 rounded-3xl border border-border/70 bg-card/70 px-6 py-5 backdrop-blur">
               <div className="flex items-start gap-4">
                 <div className="rounded-full bg-primary/10 p-3 text-primary">
@@ -149,7 +139,7 @@ export default function ChatPage() {
               </div>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     </RequireAuth>
   )

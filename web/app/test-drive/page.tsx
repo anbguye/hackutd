@@ -6,7 +6,6 @@ import Link from "next/link"
 import { ArrowLeft, Check, Clock, MapPin, SteeringWheel } from "lucide-react"
 
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { RequireAuth } from "@/components/auth/RequireAuth"
 import { LogoutButton } from "@/components/auth/LogoutButton"
 import { Button } from "@/components/ui/button"
@@ -27,19 +26,12 @@ export default function TestDrivePage() {
   if (submitted) {
     return (
       <RequireAuth>
-        <div className="flex min-h-screen flex-col bg-background text-foreground">
-          <ToyotaHeader
-            navItems={[
-              { label: "Home", href: "/" },
-              { label: "Browse", href: "/browse" },
-              { label: "Compare", href: "/compare" },
-            ]}
-            actions={[{ label: "Ask agent", href: "/chat", variant: "secondary" }]}
-            rightSlot={<LogoutButton />}
-            translucent={false}
-          />
+        <div className="flex min-h-full flex-col bg-background text-foreground">
+          <div className="toyota-container flex justify-end pt-6">
+            <LogoutButton />
+          </div>
 
-          <main className="flex flex-1 items-center justify-center px-4 py-16">
+          <div className="flex flex-1 items-center justify-center px-4 py-16">
             <div className="w-full max-w-2xl space-y-10 rounded-[2.5rem] border border-border/70 bg-card/70 p-10 text-center shadow-[0_32px_80px_-72px_rgba(15,20,26,0.85)] backdrop-blur">
               <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Check className="h-10 w-10" />
@@ -85,7 +77,7 @@ export default function TestDrivePage() {
                 </Link>
               </div>
             </div>
-          </main>
+          </div>
           <ToyotaFooter />
         </div>
       </RequireAuth>
@@ -94,19 +86,12 @@ export default function TestDrivePage() {
 
   return (
     <RequireAuth>
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <ToyotaHeader
-          navItems={[
-            { label: "Home", href: "/" },
-            { label: "Browse", href: "/browse" },
-            { label: "Compare", href: "/compare" },
-          ]}
-          actions={[{ label: "Ask agent", href: "/chat", variant: "secondary" }]}
-          rightSlot={<LogoutButton />}
-          translucent={false}
-        />
+      <div className="flex min-h-full flex-col bg-background text-foreground">
+        <div className="toyota-container flex justify-end pt-6">
+          <LogoutButton />
+        </div>
 
-        <main className="flex-1 px-4 py-12">
+        <div className="flex-1 px-4 py-12">
           <div className="toyota-container space-y-12">
             <div className="space-y-3">
               <Link
@@ -253,7 +238,7 @@ export default function TestDrivePage() {
               </div>
             </div>
           </div>
-        </main>
+        </div>
 
         <ToyotaFooter />
       </div>

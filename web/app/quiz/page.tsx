@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
 import { RequireAuth } from "@/components/auth/RequireAuth"
 import { LogoutButton } from "@/components/auth/LogoutButton"
@@ -36,18 +35,7 @@ export default function QuizPage() {
 
   return (
     <RequireAuth>
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <ToyotaHeader
-          navItems={[
-            { label: "Home", href: "/" },
-            { label: "Browse", href: "/browse" },
-            { label: "Compare", href: "/compare" },
-          ]}
-          actions={[{ label: "Skip to chat", href: "/chat", variant: "secondary" }]}
-          rightSlot={<LogoutButton />}
-          translucent={false}
-        />
-
+      <div className="flex min-h-full flex-col bg-background text-foreground">
         <div className="border-b border-border/60 bg-background/80">
           <div className="toyota-container py-5">
             <div className="flex items-center justify-between">
@@ -57,9 +45,12 @@ export default function QuizPage() {
                 </p>
                 <h1 className="mt-2 text-2xl font-semibold text-secondary">Let’s tailor your Toyota experience</h1>
               </div>
-              <span className="hidden text-sm text-muted-foreground md:block">
-                {Math.round((step / totalSteps) * 100)}% complete
-              </span>
+              <div className="flex items-center gap-4">
+                <span className="hidden text-sm text-muted-foreground md:block">
+                  {Math.round((step / totalSteps) * 100)}% complete
+                </span>
+                <LogoutButton />
+              </div>
             </div>
             <div className="mt-4 h-2 rounded-full bg-muted">
               <div
@@ -70,7 +61,7 @@ export default function QuizPage() {
           </div>
         </div>
 
-        <main className="flex flex-1 items-center justify-center px-4 py-10">
+        <div className="flex flex-1 items-center justify-center px-4 py-10">
           <div className="w-full max-w-3xl rounded-[2rem] border border-border/70 bg-card/80 p-8 shadow-[0_28px_65px_-56px_rgba(15,20,26,0.85)] backdrop-blur md:p-12">
             {step === 1 && (
               <div className="space-y-6">
@@ -199,7 +190,7 @@ export default function QuizPage() {
               </Button>
             </div>
           </div>
-        </main>
+        </div>
         <ToyotaFooter />
       </div>
     </RequireAuth>

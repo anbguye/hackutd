@@ -7,7 +7,6 @@ import { useState } from "react"
 import { Check } from "lucide-react"
 
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { RequireAuth } from "@/components/auth/RequireAuth"
 import { LogoutButton } from "@/components/auth/LogoutButton"
 import { Badge } from "@/components/ui/badge"
@@ -52,28 +51,18 @@ const availableCars = [
   },
 ]
 
-const navItems = [
-  { label: "Browse", href: "/browse" },
-  { label: "Agent", href: "/chat" },
-  { label: "Test Drive", href: "/test-drive" },
-]
-
 export default function ComparePage() {
   const [selectedCars] = useState([availableCars[0], availableCars[1], availableCars[2]])
 
   return (
     <RequireAuth>
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <ToyotaHeader
-          navItems={navItems}
-          actions={[
-            { label: "Ask Agent", href: "/chat", variant: "secondary" },
-          ]}
-          rightSlot={<LogoutButton />}
-        />
+      <div className="flex min-h-full flex-col bg-background text-foreground">
+        <div className="toyota-container flex justify-end pt-6">
+          <LogoutButton />
+        </div>
 
-        <main className="flex-1 space-y-16 pb-24 pt-12">
-          <section className="toyota-container space-y-6">
+        <div className="flex-1 space-y-16 pb-24">
+          <section className="toyota-container space-y-6 pt-4">
             <div className="space-y-4">
               <span className="toyota-chip">Side-by-side intelligence</span>
               <div className="space-y-3">
@@ -234,7 +223,7 @@ export default function ComparePage() {
               </div>
             </div>
           </section>
-        </main>
+        </div>
 
         <ToyotaFooter />
       </div>

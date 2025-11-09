@@ -6,7 +6,6 @@ import Link from "next/link"
 import { ArrowLeft, Calendar, DollarSign, Fuel, Gauge, GitCompare, Users, Zap } from "lucide-react"
 
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -35,24 +34,10 @@ const financing = [
   { term: 72, payment: 577, total: 41544, rate: 4.5 },
 ]
 
-const navItems = [
-  { label: "Browse", href: "/browse" },
-  { label: "Compare", href: "/compare" },
-  { label: "Agent", href: "/chat" },
-]
-
 export default function CarDetailPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <ToyotaHeader
-        navItems={navItems}
-        actions={[
-          { label: "Schedule Drive", href: "/test-drive", variant: "secondary" },
-          { label: "Talk to Agent", href: "/chat", variant: "primary" },
-        ]}
-      />
-
-      <main className="flex-1 space-y-16 pb-24 pt-12">
+    <div className="flex min-h-full flex-col bg-background text-foreground">
+      <div className="flex-1 space-y-16 pb-24">
         <section className="toyota-container space-y-6">
           <Link href="/browse" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-secondary">
             <ArrowLeft className="h-4 w-4" />
@@ -265,7 +250,7 @@ export default function CarDetailPage() {
             </TabsContent>
           </Tabs>
         </section>
-      </main>
+      </div>
 
       <ToyotaFooter />
     </div>

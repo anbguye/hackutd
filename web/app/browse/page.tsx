@@ -6,7 +6,6 @@ import { useState } from "react"
 import { ArrowRight, Filter, Search } from "lucide-react"
 
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
-import { ToyotaHeader } from "@/components/layout/toyota-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -77,27 +76,13 @@ const cars = [
   },
 ]
 
-const navItems = [
-  { label: "Home", href: "/" },
-  { label: "Compare", href: "/compare" },
-  { label: "Agent", href: "/chat" },
-]
-
 export default function BrowsePage() {
   const [priceRange, setPriceRange] = useState([20000, 60000])
   const [showFilters, setShowFilters] = useState(false)
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <ToyotaHeader
-        navItems={navItems}
-        actions={[
-          { label: "Test Drive", href: "/test-drive", variant: "secondary" },
-          { label: "Talk to Agent", href: "/chat", variant: "primary", icon: <ArrowRight className="h-4 w-4" /> },
-        ]}
-      />
-
-      <main className="flex-1 space-y-16 pb-24 pt-12">
+    <div className="flex min-h-full flex-col bg-background text-foreground">
+      <div className="flex-1 space-y-16 pb-24">
         <section className="toyota-container space-y-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-4">
@@ -268,7 +253,7 @@ export default function BrowsePage() {
             ))}
           </div>
         </section>
-      </main>
+      </div>
 
       <ToyotaFooter />
     </div>

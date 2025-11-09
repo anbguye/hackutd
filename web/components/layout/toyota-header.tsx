@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Menu } from 'lucide-react'
+import { ArrowRight, Menu } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -13,38 +13,86 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 
-type ToyotaHeaderAction = {
+type NavItem = {
   label: string
   href: string
-  icon?: React.ReactNode
-  variant?: 'primary' | 'secondary' | 'ghost'
+}
+
+type SecondaryLink = {
+  label: string
+  href: string
+}
+
+type CtaAction = {
+  label: string
+  href: string
 }
 
 type ToyotaHeaderProps = {
-  navItems?: Array<{ label: string; href: string }>
-  actions?: ToyotaHeaderAction[]
+  navItems?: NavItem[]
+  secondaryLinks?: SecondaryLink[]
+  cta?: CtaAction
   rightSlot?: React.ReactNode
   className?: string
-  sticky?: boolean
-  translucent?: boolean
+  variant?: 'solid' | 'transparent'
 }
 
+const DEFAULT_NAV: NavItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Compare', href: '/compare' },
+  { label: 'Agent', href: '/chat' },
+  { label: 'Models', href: '/browse' },
+  { label: 'Pricing', href: '/#pricing' },
+  { label: 'Experience', href: '/#experience' },
+]
+
+const DEFAULT_SECONDARY: SecondaryLink[] = [{ label: 'Sign In', href: '/login' }]
+
+const DEFAULT_CTA: CtaAction = { label: 'Launch Agent', href: '/signup' }
+
 export function ToyotaHeader({
-  navItems = [],
-  actions = [],
+  navItems = DEFAULT_NAV,
+  secondaryLinks = DEFAULT_SECONDARY,
+  cta = DEFAULT_CTA,
   rightSlot,
   className,
-  sticky = true,
-  translucent = true,
+  variant = 'solid',
 }: ToyotaHeaderProps) {
+  const [isScrolled, setIsScrolled] = React.useState(false)
+
+  React.useEffect(() => {
+    if (variant !== 'transparent') {
+      setIsScrolled(false)
+      return
+    }
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 24)
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [variant])
+
+  const showTransparent = variant === 'transparent' && !isScrolled
+
   const headerClasses = cn(
-    'border-b border-border/60',
-    translucent
-      ? 'bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/60'
-      : 'bg-background',
-    sticky && 'sticky top-0 z-50',
+    'fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 supports-[backdrop-filter]:backdrop-blur-0',
+    showTransparent
+      ? 'bg-transparent border-transparent text-zinc-900 md:text-white shadow-none'
+      : 'bg-white border-zinc-200 text-zinc-800 shadow-sm',
     className,
   )
+
+  const navLinkClasses = cn(
+    'relative transition-colors',
+    showTransparent ? 'text-zinc-900 hover:text-zinc-800 md:text-white md:hover:text-white/80' : 'text-zinc-700 hover:text-zinc-900',
+  )
+
+  const secondaryLinkClasses = showTransparent
+    ? 'text-zinc-900 hover:text-zinc-700 md:text-white md:hover:text-white/80'
+    : 'text-zinc-700 hover:text-zinc-900'
 
   return (
     <header className={headerClasses}>
@@ -63,47 +111,30 @@ export function ToyotaHeader({
           </span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-9 text-sm font-semibold text-muted-foreground">
+        <nav className="hidden items-center gap-8 text-sm font-semibold lg:flex">
           {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group relative transition-colors hover:text-foreground"
-            >
+            <Link key={item.href} href={item.href} className={cn(navLinkClasses, 'group')}>
               <span className="tracking-wide">{item.label}</span>
               <span className="absolute -bottom-2 left-0 h-0.5 w-full origin-left scale-x-0 bg-primary transition-transform duration-300 ease-out group-hover:scale-x-100" />
             </Link>
           ))}
         </nav>
 
-        <div className="hidden lg:flex items-center gap-3">
-          {actions.map((action) => (
-            <Link key={action.href} href={action.href}>
-              <Button
-                variant={
-                  action.variant === 'ghost'
-                    ? 'ghost'
-                    : action.variant === 'secondary'
-                      ? 'outline'
-                      : 'default'
-                }
-                className={cn(
-                  'rounded-full px-5 py-2 text-sm font-semibold transition-all',
-                  action.variant === 'primary' &&
-                    'shadow-[0_14px_30px_-20px_rgba(235,10,30,0.75)]',
-                  action.variant === 'secondary' &&
-                    'border-border/70 bg-transparent text-foreground hover:bg-muted/60',
-                  action.variant === 'ghost' &&
-                    'text-foreground hover:bg-muted/60',
-                )}
-              >
-                <>
-                  {action.label}
-                  {action.icon && <span className="ml-1">{action.icon}</span>}
-                </>
-              </Button>
+        <div className="hidden items-center gap-4 lg:flex">
+          {secondaryLinks.map((link) => (
+            <Link key={link.href} href={link.href} className={secondaryLinkClasses}>
+              {link.label}
             </Link>
           ))}
+          <Button
+            asChild
+            className="rounded-full bg-[#EB0A1E] px-6 py-2 text-sm font-semibold text-white shadow-[0_18px_40px_-22px_rgba(235,10,30,0.75)] hover:bg-[#cf091a]"
+          >
+            <Link href={cta.href} className="inline-flex items-center gap-2">
+              <span>{cta.label}</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
           {rightSlot}
         </div>
 
@@ -113,13 +144,16 @@ export function ToyotaHeader({
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full border-border/70 bg-card/80 shadow-sm hover:bg-card"
+                className={cn(
+                  'rounded-full border-border/70 bg-white text-zinc-900 shadow-sm hover:bg-white/90',
+                  showTransparent && 'bg-white/90',
+                )}
               >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open navigation</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="bg-background/95 backdrop-blur">
+            <SheetContent side="right" className="bg-white text-zinc-900">
               <div className="flex flex-col gap-10 px-1 py-10">
                 <Link href="/" className="flex items-center gap-3">
                   <span className="relative block h-9 w-28">
@@ -134,48 +168,27 @@ export function ToyotaHeader({
                 </Link>
                 <div className="flex flex-col gap-6">
                   {navItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="text-lg font-semibold text-foreground/90"
-                    >
+                    <Link key={item.href} href={item.href} className="text-lg font-semibold text-zinc-800">
                       {item.label}
                     </Link>
                   ))}
                 </div>
                 <div className="flex flex-col gap-3">
-                  {actions.map((action) => (
-                    <Link key={action.href} href={action.href}>
-                      <Button
-                        variant={
-                          action.variant === 'ghost'
-                            ? 'ghost'
-                            : action.variant === 'secondary'
-                              ? 'outline'
-                              : 'default'
-                        }
-                        className={cn(
-                          'h-12 w-full rounded-full text-base font-semibold',
-                          action.variant === 'primary' &&
-                            'shadow-[0_20px_40px_-22px_rgba(235,10,30,0.75)]',
-                          action.variant === 'secondary' &&
-                            'border-border/70 bg-transparent text-foreground hover:bg-muted/60',
-                          action.variant === 'ghost' &&
-                            'text-foreground hover:bg-muted/60',
-                        )}
-                      >
-                        <>
-                          {action.label}
-                          {action.icon && <span className="ml-2">{action.icon}</span>}
-                        </>
-                      </Button>
+                  {secondaryLinks.map((link) => (
+                    <Link key={link.href} href={link.href} className="text-base font-semibold text-zinc-700">
+                      {link.label}
                     </Link>
                   ))}
-                  {rightSlot && (
-                    <div className="pt-2">
-                      {rightSlot}
-                    </div>
-                  )}
+                  <Button
+                    asChild
+                    className="h-12 w-full rounded-full bg-[#EB0A1E] text-base font-semibold text-white shadow-[0_24px_44px_-26px_rgba(235,10,30,0.7)] hover:bg-[#cf091a]"
+                  >
+                    <Link href={cta.href} className="inline-flex items-center justify-center gap-2">
+                      <span>{cta.label}</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  {rightSlot && <div className="pt-2">{rightSlot}</div>}
                 </div>
               </div>
             </SheetContent>
