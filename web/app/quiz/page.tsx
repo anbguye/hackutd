@@ -62,6 +62,7 @@ export default function QuizPage() {
 
   const { toast } = useToast()
   const [step, setStep] = useState(1)
+  const [budgetMin, setBudgetMin] = useState(BUDGET_MIN)
   const [budgetMax, setBudgetMax] = useState(35000)
   const [bodyStyle, setBodyStyle] = useState<BodyStyleOption>("suv")
   const [seatPreference, setSeatPreference] = useState<PassengerOption>("5")
@@ -92,7 +93,7 @@ export default function QuizPage() {
 
         const { data, error } = await supabase
           .from("user_preferences")
-          .select("id, budget_max, car_types, seats, mpg_priority, use_case")
+          .select("id, budget_min, budget_max, car_types, seats, mpg_priority, use_case")
           .eq("user_id", user.id)
           .maybeSingle()
 
@@ -103,6 +104,9 @@ export default function QuizPage() {
         if (data) {
           if (data.id) {
             setPreferenceId(data.id)
+          }
+          if (typeof data.budget_min === "number") {
+            setBudgetMin(Math.min(BUDGET_MAX, Math.max(BUDGET_MIN, data.budget_min)))
           }
           if (typeof data.budget_max === "number") {
             setBudgetMax(Math.min(BUDGET_MAX, Math.max(BUDGET_MIN, data.budget_max)))
@@ -155,10 +159,18 @@ export default function QuizPage() {
     }
   }, [toast])
 
-  const handleBudgetChange = (value: number[]) => {
+  const handleBudgetMinChange = (value: number[]) => {
     const [next] = value
     if (typeof next === "number" && Number.isFinite(next)) {
-      const clamped = Math.min(BUDGET_MAX, Math.max(BUDGET_MIN, Math.round(next / BUDGET_STEP) * BUDGET_STEP))
+      const clamped = Math.min(budgetMax, Math.max(BUDGET_MIN, Math.round(next / BUDGET_STEP) * BUDGET_STEP))
+      setBudgetMin(clamped)
+    }
+  }
+
+  const handleBudgetMaxChange = (value: number[]) => {
+    const [next] = value
+    if (typeof next === "number" && Number.isFinite(next)) {
+      const clamped = Math.min(BUDGET_MAX, Math.max(budgetMin, Math.round(next / BUDGET_STEP) * BUDGET_STEP))
       setBudgetMax(clamped)
     }
   }
@@ -186,7 +198,7 @@ export default function QuizPage() {
 
       const payload = {
         user_id: currentUserId,
-        budget_min: BUDGET_MIN,
+        budget_min: budgetMin,
         budget_max: budgetMax,
         car_types: bodyStyle === "any" ? [] : [bodyStyle],
         seats: Number(seatPreference),
@@ -283,25 +295,44 @@ export default function QuizPage() {
             {step === 1 && (
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <h2 className="text-3xl font-bold text-secondary">Set your ceiling</h2>
+                  <h2 className="text-3xl font-bold text-secondary">Set your budget range</h2>
                   <p className="text-base text-muted-foreground">
                     Toyota Agent shapes recommendations around the financial comfort zone you set.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-background/80 p-8 text-center">
-                  <div className="text-4xl font-bold text-secondary">${budgetMax.toLocaleString()}</div>
-                  <p className="mt-2 text-sm uppercase tracking-[0.25em] text-muted-foreground">Maximum budget</p>
-                  <div className="mt-8 space-y-4">
-                    <Slider
-                      value={[budgetMax]}
-                      onValueChange={handleBudgetChange}
-                      min={BUDGET_MIN}
-                      max={BUDGET_MAX}
-                      step={BUDGET_STEP}
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>$15,000</span>
-                      <span>$80,000</span>
+                <div className="space-y-8">
+                  <div className="rounded-2xl border border-border/70 bg-background/80 p-8 text-center">
+                    <div className="text-4xl font-bold text-secondary">${budgetMin.toLocaleString()}</div>
+                    <p className="mt-2 text-sm uppercase tracking-[0.25em] text-muted-foreground">Minimum budget</p>
+                    <div className="mt-8 space-y-4">
+                      <Slider
+                        value={[budgetMin]}
+                        onValueChange={handleBudgetMinChange}
+                        min={BUDGET_MIN}
+                        max={budgetMax}
+                        step={BUDGET_STEP}
+                      />
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>$15,000</span>
+                        <span>${budgetMax.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-border/70 bg-background/80 p-8 text-center">
+                    <div className="text-4xl font-bold text-secondary">${budgetMax.toLocaleString()}</div>
+                    <p className="mt-2 text-sm uppercase tracking-[0.25em] text-muted-foreground">Maximum budget</p>
+                    <div className="mt-8 space-y-4">
+                      <Slider
+                        value={[budgetMax]}
+                        onValueChange={handleBudgetMaxChange}
+                        min={budgetMin}
+                        max={BUDGET_MAX}
+                        step={BUDGET_STEP}
+                      />
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>${budgetMin.toLocaleString()}</span>
+                        <span>$80,000</span>
+                      </div>
                     </div>
                   </div>
                 </div>
