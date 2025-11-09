@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, CalendarCheck, Gauge, MessageSquare, ShieldCheck, Sparkles } from "lucide-react"
