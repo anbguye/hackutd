@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { ArrowLeft, Car, Check, Clock, MapPin } from "lucide-react"
@@ -54,7 +54,7 @@ type ConfirmationDetails = {
   vehicleSummary: string
 }
 
-export default function TestDrivePage() {
+function TestDrivePageContent() {
   const searchParams = useSearchParams()
 
   const vehicleParams = useMemo<VehicleParams>(() => {
@@ -470,6 +470,22 @@ export default function TestDrivePage() {
         <ToyotaFooter />
       </div>
     </RequireAuth>
+  )
+}
+
+export default function TestDrivePage() {
+  return (
+    <Suspense fallback={<TestDriveSuspenseFallback />}>
+      <TestDrivePageContent />
+    </Suspense>
+  )
+}
+
+function TestDriveSuspenseFallback() {
+  return (
+    <div className="flex min-h-full items-center justify-center bg-background text-foreground">
+      <p className="text-sm font-medium text-muted-foreground">Loading your test drive details...</p>
+    </div>
   )
 }
 
