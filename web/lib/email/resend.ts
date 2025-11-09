@@ -15,13 +15,13 @@ export async function sendEmailHtml({ to, subject, html, cc, bcc, replyTo }: Sen
   const toList = Array.isArray(to) ? to : [to];
 
   const { data, error } = await resend.emails.send({
-    from: "Toyotron <noreply@briceduke.dev>",
+    from: "Toyotron <noreply@onboarding.briceduke.dev>",
     to: toList,
     subject,
     html,
     cc,
     bcc,
-    reply_to: replyTo,
+    replyTo,
   });
 
   if (error) {
