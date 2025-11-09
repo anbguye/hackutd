@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 
 import { ToyotaFooter } from "@/components/layout/toyota-footer"
 import { RequireAuth } from "@/components/auth/RequireAuth"
-import { LogoutButton } from "@/components/auth/LogoutButton"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -265,14 +264,11 @@ export default function QuizPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                   Step {step} of {totalSteps}
                 </p>
-                <h1 className="mt-2 text-2xl font-semibold text-secondary">Let’s tailor your Toyota experience</h1>
+                <h1 className="mt-2 text-2xl font-semibold text-secondary">Let's tailor your Toyota experience</h1>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="hidden text-sm text-muted-foreground md:block">
-                  {Math.round((step / totalSteps) * 100)}% complete
-                </span>
-                <LogoutButton />
-              </div>
+              <span className="hidden text-sm text-muted-foreground md:block">
+                {Math.round((step / totalSteps) * 100)}% complete
+              </span>
             </div>
             <div className="mt-4 h-2 rounded-full bg-muted">
               <div
