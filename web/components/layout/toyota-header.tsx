@@ -3,7 +3,8 @@
 import * as React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Menu } from 'lucide-react'
+import { ArrowRight, Menu, LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { supabase } from '@/lib/supabase/client'
 
 type NavItem = {
   label: string
@@ -35,6 +37,7 @@ type ToyotaHeaderProps = {
   rightSlot?: React.ReactNode
   className?: string
   variant?: 'solid' | 'transparent'
+  isAuthenticated?: boolean
 }
 
 const DEFAULT_NAV: NavItem[] = [
@@ -57,8 +60,12 @@ export function ToyotaHeader({
   rightSlot,
   className,
   variant = 'solid',
+  isAuthenticated: initialIsAuthenticated,
 }: ToyotaHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false)
+  const [isAuthenticated, setIsAuthenticated] = React.useState(initialIsAuthenticated ?? false)
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false)
+  const router = useRouter()
 
   React.useEffect(() => {
     if (variant !== 'transparent') {
@@ -74,6 +81,30 @@ export function ToyotaHeader({
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [variant])
+
+  React.useEffect(() => {
+    let mounted = true
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession()
+      if (mounted) {
+        setIsAuthenticated(!!data.session)
+      }
+    }
+    checkAuth()
+    const { data: subscription } = supabase.auth.onAuthStateChange(() => {
+      checkAuth()
+    })
+    return () => {
+      mounted = false
+      subscription.subscription.unsubscribe()
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    await supabase.auth.signOut()
+    router.replace('/login')
+  }
 
   const showTransparent = variant === 'transparent' && !isScrolled
 
@@ -121,11 +152,23 @@ export function ToyotaHeader({
         </nav>
 
         <div className="hidden items-center gap-4 lg:flex">
-          {secondaryLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={secondaryLinkClasses}>
-              {link.label}
-            </Link>
-          ))}
+          {isAuthenticated ? (
+            <Button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              variant="outline"
+              className={secondaryLinkClasses + ' border-current'}
+            >
+              <LogOut className="h-4 w-4" />
+              <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+            </Button>
+          ) : (
+            secondaryLinks.map((link) => (
+              <Link key={link.href} href={link.href} className={secondaryLinkClasses}>
+                {link.label}
+              </Link>
+            ))
+          )}
           <Button
             asChild
             className="rounded-full bg-[#EB0A1E] px-6 py-2 text-sm font-semibold text-white shadow-[0_18px_40px_-22px_rgba(235,10,30,0.75)] hover:bg-[#cf091a]"
@@ -174,11 +217,23 @@ export function ToyotaHeader({
                   ))}
                 </div>
                 <div className="flex flex-col gap-3">
-                  {secondaryLinks.map((link) => (
-                    <Link key={link.href} href={link.href} className="text-base font-semibold text-zinc-700">
-                      {link.label}
-                    </Link>
-                  ))}
+                  {isAuthenticated ? (
+                    <Button
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      variant="outline"
+                      className="h-10 w-full rounded-full border-zinc-700 text-base font-semibold text-zinc-700 hover:bg-zinc-50"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+                    </Button>
+                  ) : (
+                    secondaryLinks.map((link) => (
+                      <Link key={link.href} href={link.href} className="text-base font-semibold text-zinc-700">
+                        {link.label}
+                      </Link>
+                    ))
+                  )}
                   <Button
                     asChild
                     className="h-12 w-full rounded-full bg-[#EB0A1E] text-base font-semibold text-white shadow-[0_24px_44px_-26px_rgba(235,10,30,0.7)] hover:bg-[#cf091a]"

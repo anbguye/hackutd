@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { RequireAuth } from "@/components/auth/RequireAuth"
-import { LogoutButton } from "@/components/auth/LogoutButton"
 
 type Message = {
   role: "user" | "agent"
@@ -45,10 +44,6 @@ export default function ChatPage() {
   return (
     <RequireAuth>
       <div className="flex min-h-full flex-col bg-background text-foreground">
-        <div className="toyota-container flex justify-end pt-6">
-          <LogoutButton />
-        </div>
-
         <div className="flex-1">
           <div className="toyota-container flex h-full max-w-4xl flex-col py-6">
             <div className="mb-8 rounded-3xl border border-border/70 bg-card/70 px-6 py-5 backdrop-blur">
