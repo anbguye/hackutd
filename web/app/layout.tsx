@@ -1,5 +1,6 @@
-import type React from "react"
 import type { Metadata } from "next"
+import type { ReactNode } from "react"
+import { Suspense } from "react"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ToyotaHeader } from "@/components/layout/toyota-header"
@@ -47,13 +48,15 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode
 }>) {
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <ScrollOffset />
-        <HashAnchorFix />
+        <Suspense fallback={null}>
+          <HashAnchorFix />
+        </Suspense>
         <div className="flex min-h-screen flex-col bg-background">
           <ToyotaHeader navItems={NAV_ITEMS} secondaryLinks={SECONDARY_LINKS} />
           <main className="flex-1" style={{ paddingTop: "var(--header-h, 80px)" }}>
