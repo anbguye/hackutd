@@ -8,6 +8,7 @@
  * - search_toyota_trims
  * - display_car_recommendations
  * - send_email_html
+ * - schedule_test_drive
  */
 
 export const searchToyotaTrimsJsonSchema = {
@@ -160,4 +161,42 @@ export const displayCarRecommendationsJsonSchema = {
 } as const;
 
 export { sendEmailHtmlJsonSchema } from "@/lib/email/schemas";
+
+export const scheduleTestDriveJsonSchema = {
+  type: "object",
+  properties: {
+    trimId: {
+      type: "integer",
+      description: "The trim_id of the vehicle to schedule a test drive for (required)",
+    },
+    preferredDate: {
+      type: "string",
+      description:
+        "Preferred date in ISO format (YYYY-MM-DD) or relative format like 'tomorrow', 'next week'",
+    },
+    preferredTime: {
+      type: "string",
+      description:
+        "Preferred time in HH:MM format (24-hour) or relative like 'morning', 'afternoon', 'evening'",
+    },
+    location: {
+      type: "string",
+      description: "Preferred dealership location (downtown, north, or south)",
+    },
+    contactName: {
+      type: "string",
+      description: "Contact name (will use user's profile if not provided)",
+    },
+    contactEmail: {
+      type: "string",
+      format: "email",
+      description: "Contact email (will use user's profile if not provided)",
+    },
+    contactPhone: {
+      type: "string",
+      description: "Contact phone number (will use user's profile if not provided)",
+    },
+  },
+  required: ["trimId", "preferredDate"],
+} as const;
 
