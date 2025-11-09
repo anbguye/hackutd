@@ -10,8 +10,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { CarRecommendations } from "@/components/chat/CarRecommendations";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
+import { VoiceButton } from "@/components/chat/VoiceButton";
 import { MemoizedMarkdown } from "@/components/memoized-markdown";
 import { supabase } from "@/lib/supabase/client";
+import { SpeechRecognitionManager } from "@/lib/voice/speechRecognition";
+import { SpeechSynthesisManager } from "@/lib/voice/speechSynthesis";
+import { toast } from "sonner";
 
 type DisplayMessage = {
   id?: string;
@@ -130,7 +134,50 @@ export default function ChatPage() {
   const authTokenRef = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Voice mode state
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechRecognitionRef = useRef<SpeechRecognitionManager | null>(null);
+  const speechSynthesisRef = useRef<SpeechSynthesisManager | null>(null);
+  const lastSpokenMessageIdRef = useRef<string | null>(null);
+  const voiceMessageBufferRef = useRef<string>("");
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const streamingTextRef = useRef<string>("");
+
   // Get auth token from Supabase session and load preferences
+  // Initialize voice managers
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      speechRecognitionRef.current = new SpeechRecognitionManager();
+    } catch (error) {
+      console.error("[ChatPage] Failed to initialize speech recognition:", error);
+    }
+
+    try {
+      speechSynthesisRef.current = new SpeechSynthesisManager();
+    } catch (error) {
+      console.error("[ChatPage] Failed to initialize speech synthesis:", error);
+    }
+
+    return () => {
+      // Cleanup
+      if (speechRecognitionRef.current) {
+        speechRecognitionRef.current.abort();
+      }
+      if (speechSynthesisRef.current) {
+        speechSynthesisRef.current.cancel();
+      }
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     let mounted = true;
 
@@ -297,6 +344,173 @@ export default function ChatPage() {
       // setInput(messageToSend);
     }
   };
+
+  // Handle voice input - true voice mode with continuous listening
+  const handleVoiceToggle = () => {
+    if (!speechRecognitionRef.current) {
+      toast.error("Voice recognition is not supported in this browser");
+      return;
+    }
+
+    if (isListening) {
+      // Stop listening and send final message
+      speechRecognitionRef.current.stop();
+      setIsListening(false);
+      
+      // Send accumulated message if any
+      if (voiceMessageBufferRef.current.trim()) {
+        void sendMessage({
+          parts: [{ type: "text", text: voiceMessageBufferRef.current.trim() }],
+        });
+        voiceMessageBufferRef.current = "";
+      }
+      
+      setIsVoiceMode(false);
+      
+      // Clear silence timeout
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = null;
+      }
+    } else {
+      // Start continuous listening
+      setIsVoiceMode(true);
+      setIsListening(true);
+      voiceMessageBufferRef.current = "";
+      
+      // Cancel any ongoing speech
+      if (speechSynthesisRef.current) {
+        speechSynthesisRef.current.cancel();
+        setIsSpeaking(false);
+      }
+
+      speechRecognitionRef.current.start({
+        onStart: () => {
+          setIsListening(true);
+        },
+        onResult: (text, isFinal) => {
+          if (isFinal) {
+            // Final result - add to buffer
+            voiceMessageBufferRef.current += text + " ";
+            
+            // Reset silence timeout
+            if (silenceTimeoutRef.current) {
+              clearTimeout(silenceTimeoutRef.current);
+            }
+            
+            // Auto-send after 2 seconds of silence
+            silenceTimeoutRef.current = setTimeout(() => {
+              if (voiceMessageBufferRef.current.trim()) {
+                speechRecognitionRef.current?.stop();
+                void sendMessage({
+                  parts: [{ type: "text", text: voiceMessageBufferRef.current.trim() }],
+                });
+                voiceMessageBufferRef.current = "";
+                setIsListening(false);
+                setIsVoiceMode(false);
+              }
+            }, 2000);
+          } else {
+            // Interim result - could show in UI for feedback
+            // For now, we'll wait for final results
+          }
+        },
+        onError: (error) => {
+          setIsListening(false);
+          setIsVoiceMode(false);
+          voiceMessageBufferRef.current = "";
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current);
+            silenceTimeoutRef.current = null;
+          }
+          toast.error(error);
+        },
+        onEnd: () => {
+          setIsListening(false);
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current);
+            silenceTimeoutRef.current = null;
+          }
+          // Don't disable voice mode on end - allow re-starting
+        },
+      });
+    }
+  };
+
+  // Handle voice output - stream speech as text arrives (true voice mode)
+  useEffect(() => {
+    if (!speechSynthesisRef.current || !isVoiceMode) {
+      return;
+    }
+
+    const lastAssistantMessage = displayMessages
+      .filter((m) => m.role === "agent")
+      .at(-1);
+
+    if (!lastAssistantMessage || !lastAssistantMessage.content) {
+      return;
+    }
+
+    // Skip if we've already processed this message
+    if (lastAssistantMessage.id === lastSpokenMessageIdRef.current) {
+      return;
+    }
+
+    // Extract plain text from markdown for speech
+    const currentText = lastAssistantMessage.content
+      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+      .replace(/\*(.*?)\*/g, "$1") // Remove italic
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // Remove links
+      .replace(/#{1,6}\s+/g, "") // Remove headers
+      .replace(/```[\s\S]*?```/g, "") // Remove code blocks
+      .replace(/`([^`]+)`/g, "$1") // Remove inline code
+      .trim();
+
+    if (!currentText) {
+      return;
+    }
+
+    // If streaming, speak new chunks as they arrive
+    if (isStreaming) {
+      const previousText = streamingTextRef.current;
+      if (currentText.length > previousText.length) {
+        // New text arrived - speak the new chunk
+        const newChunk = currentText.slice(previousText.length);
+        if (newChunk.trim().length > 0) {
+          // Only speak if we have a complete sentence or significant chunk
+          const words = newChunk.trim().split(/\s+/);
+          if (words.length >= 3 || newChunk.includes(".") || newChunk.includes("!")) {
+            setIsSpeaking(true);
+            speechSynthesisRef.current.speak(newChunk.trim(), {
+              priority: "normal",
+            });
+          }
+        }
+        streamingTextRef.current = currentText;
+      }
+    } else {
+      // Streaming complete - speak remaining text if any
+      const remainingText = currentText.slice(streamingTextRef.current.length);
+      if (remainingText.trim().length > 0) {
+        setIsSpeaking(true);
+        speechSynthesisRef.current.speak(remainingText.trim(), {
+          priority: "normal",
+        });
+      }
+      
+      // Mark message as spoken
+      lastSpokenMessageIdRef.current = lastAssistantMessage.id ?? null;
+      streamingTextRef.current = "";
+      
+      // Reset speaking state after delay
+      const speakTimeout = setTimeout(() => {
+        setIsSpeaking(false);
+      }, Math.max(1000, currentText.length * 50));
+
+      return () => clearTimeout(speakTimeout);
+    }
+  }, [displayMessages, isVoiceMode, isStreaming]);
+
 
   return (
     <RequireAuth>
@@ -484,14 +698,22 @@ export default function ChatPage() {
                         void handleSend();
                       }
                     }}
-                    className="h-12 flex-1 rounded-full border-border/70 bg-card/80 px-5"
+                    disabled={isListening}
+                    className="h-12 flex-1 rounded-full border-border/70 bg-card/80 px-5 disabled:opacity-60"
+                  />
+                  <VoiceButton
+                    isListening={isListening}
+                    isProcessing={isStreaming}
+                    isSpeaking={isSpeaking}
+                    isSupported={speechRecognitionRef.current?.getSupported() ?? false}
+                    onClick={handleVoiceToggle}
                   />
                   <Button
                     onClick={() => {
                       void handleSend();
                     }}
                     size="icon"
-                    disabled={isStreaming}
+                    disabled={isStreaming || isListening}
                     className="h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-[0_24px_48px_-32px_rgba(235,10,30,0.6)] hover:bg-primary/90 disabled:opacity-60"
                   >
                     <Send className="h-5 w-5" />
